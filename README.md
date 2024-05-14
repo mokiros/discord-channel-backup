@@ -1,6 +1,20 @@
 # discord-channel-backup
 A simple tool for downloading all of the messages in a Discord channel and saving them to a postgres database. Requires a discord bot present in the channel which has permission to read messages and message content intent.
 
+## Database table setup
+Run the query or manually create a table with the columns:
+```sql
+CREATE TABLE messages
+(
+    channel_id BIGINT NOT NULL,
+    id BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    data JSONB NOT NULL,
+    CONSTRAINT message_id_pkey PRIMARY KEY (id)
+);
+```
+
 ## Running the tool
 Clone the repository:
 ```bash
