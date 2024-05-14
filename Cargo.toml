@@ -1,0 +1,14 @@
+[package]
+name = "discord-channel-backup"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.4", features = ["derive"] }
+dotenvy = "0.15.7"
+futures = "0.3.30"
+indicatif = { version = "0.17.8", features = ["improved_unicode", "tokio"] }
+serde = "1.0.200"
+serenity = { version = "0.12.1", features = ["http"] }
+sqlx = { version = "0.7.4", features = ["postgres", "runtime-tokio"] }
+tokio = "1.37.0"
