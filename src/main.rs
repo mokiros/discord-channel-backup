@@ -19,6 +19,10 @@ struct Args {
 	/// Start from a specific message ID
 	#[arg(short, long)]
 	before: Option<u64>,
+
+	/// Start at a specific message ID, and go towards newest messages
+	#[arg(short, long)]
+	after: Option<u64>,
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -39,8 +43,17 @@ async fn main() {
 		)
 		.unwrap(),
 	);
-	let mut target: Option<MessagePagination> =
-		args.before.map(|id| MessagePagination::Before(id.into()));
+	if args.after.is_some() && args.before.is_some() {
+		panic!("Cannot specify both after and before");
+	}
+	let is_before = args.after.is_none();
+	let mut target: Option<MessagePagination> = None;
+	if let Some(before) = args.before {
+		target = Some(MessagePagination::Before(before.into()));
+	}
+	if let Some(after) = args.after {
+		target = Some(MessagePagination::After(after.into()));
+	}
 	loop {
 		let messages = http
 			.get_messages(args.channel.into(), target, Some(100))
@@ -58,7 +71,11 @@ async fn main() {
 				.expect(format!("Failed to save message {} to db", msg.id).as_str());
 			bar.inc(1);
 		}
-		target = messages.last().map(|m| MessagePagination::Before(m.id));
+		if is_before {
+			target = messages.last().map(|m| MessagePagination::Before(m.id));
+		} else {
+			target = messages.first().map(|m| MessagePagination::After(m.id));
+		}
 		if target.is_none() {
 			break;
 		};
